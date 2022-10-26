@@ -37,3 +37,18 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+#Other junk
+*.html
+
+*/junk/*
+*outline*
+
+*$*
+
+*.tmp
+
+#tex
+*.log
+*.aux
+*.synctex.gz
