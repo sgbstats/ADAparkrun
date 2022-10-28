@@ -34,13 +34,14 @@ adapat=tribble(~Name, ~Barcode,
 write_lines(c("|Name|Barcode|","|-|-|", adapat$rm), "README.md")
 
 
-parkruns=tribble(~Name,~Event,~`Run Date`,~`Run Number`,~Pos,~Time,~AgeGrade,~`PB?`)
+parkruns=tribble(~Name,~Barcode,~Event,~`Run Date`,~`Run Number`,~Pos,~Time,~AgeGrade,~`PB?`)
 
 for(i in 1:nrow(adapat))
 {
   url=adapat$url[i]
   link=getURL(url)         
-  table=readHTMLTable(link)[[3]] %>% mutate(Name=adapat$Name[i])
+  table=readHTMLTable(link)[[3]] %>% mutate(Name=adapat$Name[i],
+                                            Barcode=adapat$Barcode[i])
   parkruns=parkruns %>% rbind.data.frame(table)
   Sys.sleep(10)
 }
@@ -65,3 +66,5 @@ y=parkruns %>% group_by(Name, Event) %>% slice_min(Time2, with_ties = F) %>%
 
 sheet_write(y, ss="https://docs.google.com/spreadsheets/d/1Bv_LGrOK6leEFV76OlHPsLX8CvM17CmEhQ2_JzZg5YI/edit#gid=0",
             sheet="PBs")
+
+save(adapat,parkruns, file="ADAparkrun/adapat.Rda" )
