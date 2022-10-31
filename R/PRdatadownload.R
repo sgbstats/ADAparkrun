@@ -8,6 +8,12 @@ library(chron)
 library(tibble)
 library(chron)
 library(googlesheets4)
+# library(shinyjs)
+options(gargle_oauth_cache = ".secrets")
+gs4_auth(
+  cache = ".secrets",
+  email = "sebastiangbate@gmail.com"
+)
 adapat=tribble(~Name, ~Barcode,
                "Seb", 493595,
                "Rachel", 1539187,
@@ -49,9 +55,10 @@ beepr::beep()
 
 parkruns=parkruns %>% mutate(Time2=case_when(str_length(Time)==5~chron(times=paste("00:",Time, sep="")),
                                              T~chron(times=paste(Time))))
-parkruns %>% count(Name, Event) %>% arrange(-n) %>% count(Name)
+parkruns %>% count(Event) %>% arrange(-n) 
 
-x=parkruns %>% count(Name, Event) %>% pivot_wider(names_from = "Name", values_from = n) %>% 
+x=parkruns %>% count(Name, Event) %>% pivot_wider(
+  names_from = "Name", values_from = n) %>% 
   merge(parkruns %>% count(Event))%>% arrange(-n) %>% select(-n)
 
 
@@ -67,4 +74,24 @@ y=parkruns %>% group_by(Name, Event) %>% slice_min(Time2, with_ties = F) %>%
 sheet_write(y, ss="https://docs.google.com/spreadsheets/d/1Bv_LGrOK6leEFV76OlHPsLX8CvM17CmEhQ2_JzZg5YI/edit#gid=0",
             sheet="PBs")
 
-save(adapat,parkruns, file="ADAparkrun/adapat.Rda" )
+
+parkruns2=parkruns %>% group_by(Event, Name, Barcode) %>% slice_min(`Run Date`, with_ties = F) %>% ungroup() %>% dplyr::select(Event, Name, Barcode)
+sheet_write(parkruns2, ss="https://docs.google.com/spreadsheets/d/1Bv_LGrOK6leEFV76OlHPsLX8CvM17CmEhQ2_JzZg5YI/edit#gid=0",
+            sheet="Parkrunlist")
+
+save(adapat, file="ADAparkrun/adapat.Rda" )
+
+save(parkruns, parkruns2, file="Data/Cache.Rda")
+
+library(rvest)
+library(httr)
+i=15
+
+# url=adapat$url[i]
+# download.file(url, destfile = "junk/scrapedpage.html", quiet=TRUE)
+# rvest::read_html(url)
+# 
+# session(url)
+# con=curl::curl(url)
+# 
+# %>% read_html()
