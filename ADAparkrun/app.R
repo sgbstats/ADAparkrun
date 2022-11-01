@@ -5,16 +5,20 @@ library(tidyverse)
 library(RCurl)
 library(shinycssloaders)
 library(googlesheets4)
+library(RJSONIO)
 load("Data.Rda")
 load("adapat.Rda")
 `%notin%`=Negate(`%in%`)
-options(gargle_oauth_cache = ".secrets")
-gs4_auth(
-  cache = ".secrets",
-  email = "sebastiangbate@gmail.com"
-)
-parkruns=googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1Bv_LGrOK6leEFV76OlHPsLX8CvM17CmEhQ2_JzZg5YI/edit#gid=0",
-                                   sheet="Parkrunlist")
+# options(gargle_oauth_cache = ".secrets")
+# gs4_auth(
+#   cache = ".secrets",
+#   email = "sebastiangbate@gmail.com"
+# )
+# parkruns=googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1Bv_LGrOK6leEFV76OlHPsLX8CvM17CmEhQ2_JzZg5YI/edit#gid=0",
+#                                    sheet="Parkrunlist")
+
+
+
 
 ui <- fluidPage(
   tags$head(
@@ -75,14 +79,22 @@ ui <- fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      # dataTableOutput("test"),
+      # dataTableOutput("test")
       # textOutput("test2"),
       dataTableOutput("mnendy")%>% withSpinner(color="#0dc5c1")
     )
   )
 )
 
-# Define server logic required to draw a histogram
+parkruns0=fromJSON("https://adap.at/api/parkrun")
+parkruns=tribble(~Event,~`Run Date`,~`Run Number`,~Pos,~Time,~AgeGrade,~`PB?`, ~Barcode)
+for(i in 1:nrow(adapat))
+{
+  x=data.frame(matrix(unlist(parkruns0[[i]]$data$results), nrow=length(parkruns0[[i]]$data$results), byrow=TRUE),stringsAsFactors=FALSE) %>% 
+    mutate(Barcode=as.numeric(parkruns0[[i]]$barcode)) %>% 
+    rename("Event"="X1","Run Date"="X2","Run Number"="X3","Pos"="X4","Time"="X5","AgeGrade"="X6","PB?"="X7")
+  parkruns=parkruns %>% rbind.data.frame(x)
+}
 server <- function(input, output) {
   
   prdata=eventReactive(input$go, {
@@ -102,11 +114,10 @@ server <- function(input, output) {
     #   parkruns=parkruns %>% rbind.data.frame(table)
     #   # Sys.sleep(5)
     # }
-
+    
     # adapat2
     # parkruns
     
-
     
     parkruns %>%
       filter(Barcode %in% input$adapat) %>%
@@ -129,17 +140,17 @@ server <- function(input, output) {
       rename("Parkrun"="Short.x") %>% 
       mutate(miles=round(miles,1),
              km=round(km,1))
-      
+    
   })
   
   output$test=renderDataTable({
-    prdata()
+    parkruns
   })
   
   output$test2=renderText({
     url=adapat$url[15]
-      link=getURL(url)
-      link
+    link=getURL(url)
+    link
   })
 }
 

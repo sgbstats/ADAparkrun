@@ -89,9 +89,9 @@ i=15
 
 # url=adapat$url[i]
 # download.file(url, destfile = "junk/scrapedpage.html", quiet=TRUE)
-# rvest::read_html(url)
+rvest::read_html(url) %>% curl::curl(handle = curl::new_handle("useragent"="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"))
 # 
 # session(url)
-# con=curl::curl(url)
+con=curl::curl(url)
 # 
 # %>% read_html()
