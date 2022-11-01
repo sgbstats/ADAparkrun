@@ -5,7 +5,7 @@ account: sgbstats
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7453511
-bundleId: 6459355
+bundleId: 6463677
 url: https://sgbstats.shinyapps.io/adaparkrun/
-when: 1667225956.16357
-lastSyncTime: 1667225956.16358
+when: 1667316293.67705
+lastSyncTime: 1667316293.67705
